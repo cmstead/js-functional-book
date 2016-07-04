@@ -40,8 +40,10 @@
 \pagestyle{headings}
  
 \begin{document}
-\chapter{Expressions}
-\section{What Is An Expression?}
+\chapter{Foundations}
+
+\section{Expressions}
+\subsection{What Is An Expression?}
  
  In mathematics, an expression is an evaluable collection of symbols constructed with the concept of correctness within a context.  In other words, an expression is something which can be evaluated given the right set of symbols and values, which will result in a new meaningful result.
  
@@ -55,7 +57,7 @@
  
  In many modern languages, not every line of code is an expression.  If we consider flow control structures like if/else and looping blocks, the construct is not, itself, and expression.  Although having language structures which are not expressions is perfectly acceptable, it introduces challenges when writing functional code.
  
-\section{J-Expressions}
+\subsection{J-Expressions}
  
  In the book The Little Schemer, Friedman and Felleisen introduce the concept of s-expressions.  In that same vein, this chapter will introduce expressions in Javascript which I will refer to as j-expressions.  Although this is not a formal name in the language specification, I believe it will help to differentiate the work we are doing here from other non-expression code which could be written here or in other code. Let's have a look at defining a j-expression. 
  
@@ -108,6 +110,76 @@
     add(7, 9); // 16
 \end{lstlisting} 
  
- We can see how wrapping actions in parentheses isolates them from the scope around them. This means we can create an ad-hoc scope around a behavior when we want to exec
+ We can see how wrapping actions in parentheses isolates them from the scope around them. This means we can create an ad-hoc scope around a behavior when we want to execute a line of code and limit its impact on the scope around it. This doesn't isolate our code entirely, but it can reduce unwanted impact. What we have ultimately accomplished is generating a named function without permanently attaching it to the surrounding scope, creating a j-expression where there previously was not one.
  
+\subsection{Using J-Expressions}
+ 
+ J-expressions are introduced first in order to set the stage for how we will work to construct programs functionally in Javascript.  It is important to understand how j-expressions are built and used as they will help us to build programs which are declarative, clear and concise.  Ideally, while we avoid verbosity we also will avoid unnecessary terseness, avoiding code golf simply because we can write something in a single line.
+ 
+ The very nature of functional programming is not simply to write procedural code wrapped in functions, or to exclude the classical object oriented design world simply because we can. Instead we should aim to construct programs which are clear, error-free and declarative. J-expressions are the means to produce code which brings us closer to that goal.
+ 
+ In order to see what we can achieve with functional programming, using j-expressions, we will perform a simple task. For now we will assume to simply write code in an imperative way in order to construct j-expressions we can use to accomplish small tasks. First, we will look at adding numbers together. We will take an array of numbers and simply add them together.
+ 
+\begin{lstlisting}
+function sum (nums) {
+    var result = 0;
+    
+    for(var i = 0; i < nums.length; i++) {
+        result += nums[i];
+    }
+    
+    return result;
+}
+
+sum([1, 2, 3, 4, 5]); // 15
+sum([9, 10, 11]); // 30
+\end{lstlisting}
+ 
+ Clearly sum is not written in a way which uses j-expressions, used as a j-expression each time we call sum. One of the most important ideas to understand from this is, even if the tools are not immediately available to work exclusively with j-expressions, if we can bundle up the pieces of our code and wrap them to behave as j-expressions, we are a step closer to the goal. We can always come back and improve on an old idea.
+ 
+ Let's take a look at one more piece of code. We will first write it imperatively and then we will do a little work to introduce expressions into the code. We will not look at all of the intermediate steps. Instead it is assumed the move from one implementation to the other is simple enough it should be clear.
+ 
+\begin{lstlisting}
+function getEvens (nums) {
+    var result = [];
+    
+    for(var i = 0; i < nums.length; i++) {
+        if(nums[i] % 2 === 0) {
+            result.push(nums[i]);        
+        }    
+    }
+    
+    return result;
+}
+
+getEvens([1, 2, 3, 4, 5]); // [2, 4]
+getEvens([1, 3, 5, 7]); // []
+\end{lstlisting}
+
+ This kind of development is moving toward a pyramid of doom. Instead, let's rewrite this to be a little more declarative and introduce a j-expression. Although this code will be more modular, it is unlikely our new code could be considered beautiful. Nonetheless, let's have a look.
+ 
+\begin{lstlisting}
+function insertIfEven(result, num) {
+    if(num % 2 === 0) { return result.concat([num]); }
+    else { return result; }
+}
+
+function getEvens (nums) {
+    var result = [];
+    
+    for(var i = 0; i < nums.length; i++) {
+        result = insertIfEven(result, nums[i]);    
+    }
+    
+    return nums;
+}
+
+getEvens([1, 2, 3, 4, 5]); // [2, 4]
+getEvens([1, 3, 5, 7]); // []
+\end{lstlisting}
+
+ Our new code executes and produces the same output, but the implementation is a little different. By introducing the function insertIfEven, we have created a new j-expression which can be used. The getEvens function now updates result on each pass, but our only necessary detail is that we know the value is inserted into an array when even. This kind of declarative programming helps keep the code clear on intent and reduces the amount of mental gymnastics we need to perform at a single level.
+
+\section{Function Composition}
+
 \end{document}
