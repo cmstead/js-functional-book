@@ -4,7 +4,7 @@
 \usepackage{listings}
  
 \usepackage{color}
-\definecolor{lightgray}{rgb}{.9,.9,.9}
+\definecolor{lightgray}{rgb}{.6,.6,.6}
 \definecolor{darkgray}{rgb}{.4,.4,.4}
 \definecolor{purple}{rgb}{0.65, 0.12, 0.82}
 
@@ -25,8 +25,8 @@
 
 \lstset{frame=tb,
   language=JavaScript,
-  aboveskip=3mm,
-  belowskip=3mm,
+  aboveskip=8mm,
+  belowskip=8mm,
   showstringspaces=false,
   columns=flexible,
   basicstyle={\small\ttfamily},
@@ -55,21 +55,59 @@
  
  In many modern languages, not every line of code is an expression.  If we consider flow control structures like if/else and looping blocks, the construct is not, itself, and expression.  Although having language structures which are not expressions is perfectly acceptable, it introduces challenges when writing functional code.
  
-\section{j-expressions}
+\section{J-Expressions}
  
  In the book The Little Schemer, Friedman and Felleisen introduce the concept of s-expressions.  In that same vein, this chapter will introduce expressions in Javascript which I will refer to as j-expressions.  Although this is not a formal name in the language specification, I believe it will help to differentiate the work we are doing here from other non-expression code which could be written here or in other code. Let's have a look at defining a j-expression. 
  
  A j-expression is an expression in Javascript which must adhere to the definition of a computer science definition of an expression.  This means, a j-expression must be composed of values, constants, operators and functions. From this we can infer that the following expressions are, in fact, j-expressions as well.
  
- \begin{lstlisting}
- 
- 	17 + 32
- 	'I am a string'.split(' ')
- 	
- \end{lstlisting}
+\begin{lstlisting}
+    17 + 32
+    'I am a string'.split(' ')
+\end{lstlisting}
  
  Each of these expressions returns a result however, neither of them modify the global working space or produce other environmental effects which are not immediately visible from their output.  Expressions like these are important for constructing a functional methodology within Javascript which will help simplify our programs and minimize the number of places unexpected behaviors might sneak in and introduce difficult to diagnose problems.
  
+ In contrast to the j-expressions in our example, let's take a look at behaviors which are not expressions.  These examples are easy to understand since they do not return a result from their action. Although these behaviors are not expressions, it does not render them useless or unimportant, but it is critical to understand how expressions differ from non-expression behaviors.
  
+\begin{lstlisting}
+    console.log(42)
+    var y = 'a value'
+\end{lstlisting}
+ 
+ Clearly, logging a value to the console does not return any meaningful result regarding its action; instead we only get a side effect and nothing more.  In much the same way, when we declare a variable with an initial value, we also get no return value. The variable declaration and assignment only affects the environment.
+ 
+ Although logging to the console and declaring variables are not expressions, these are very common behaviors in Javascript programs. Our goal through exploring functional programming in Javascript with j-expressions is to reduce the need for non-expression behaviors. Instead, we should consider code using j-expressions to be the norm, leaving code written in a non-expression way to be limited to particular cases as the need arises.
+ 
+ Our last examples in the world of j-expressions is code which meets the criteria for expressions but are not, in fact, j-expressions.  Since j-expressions are a restriction against the definition of expressions, it is possible to write code which meets one definition without meeting the other. Some of the most common examples which behave this way are actually built in functions and core behaviors people rely on every day as they develop applications.
+ 
+\begin{lstlisting}
+    function add (a, b) { return a + b; }
+    myArray.pop()
+    myArray.reverse();
+\end{lstlisting}
+ 
+ Each of the expressions above actually have a side effect. The most obvious are Array.prototype.pop and Array.prototype.reverse which both return an operation result, but also modify the array they are working on.  For the experienced Javascript developer, the side effects which accompany array operations are well known and are completely unsurprising. Unfortunately, for people who are just coming to the language, the fact that some operations modify the array while others do not can be a source of surprise and frustration.
+ 
+ In much the same way that array operations modify the program environment, function declarations also change the environment in a big way. When a function is defined explicitly, it impacts the local scope closest to itself and all enclosing scopes. This modification is, usually, desirable, though it may be surprising to some that creating a named function is, in fact, an expression.
+ 
+ We can, just as easily, create a named function and assign it to a variable in the same line. This action of defining a function and returning a result makes named function declaration an expression, but it definitely excludes it from the j-expression space.  Below is an example of function creation and assignment using our add function code from above.
+
+\begin{lstlisting}
+    var addVar = function add (a, b) { return a + b; };
+    addVar(5, 6); // 11
+\end{lstlisting}
+ 
+ At this point we should note calling addVar is actually a j-expression, while the assignment of the variable above is not. We can, however, change our named function code into a j-expression with the addition of parentheses around the function declaration.  This will reduce our impact on the local scope to the assignment of a single variable.  More than that, we will actually isolate the function from our variable name allowing us to do a little name trickery which may be useful later.
+ 
+\begin{lstlisting}
+    (function add (a, b) { return a + b; });
+    add(7, 9); // undefined is not a function ...
+    
+    var add = (function add (a, b) { return a + b; });
+    add(7, 9); // 16
+\end{lstlisting} 
+ 
+ We can see how wrapping actions in parentheses isolates them from the scope around them. This means we can create an ad-hoc scope around a behavior when we want to exec
  
 \end{document}
